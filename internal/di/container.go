@@ -6,8 +6,10 @@ import (
 	"bank-api/internal/repository/postgres"
 	"bank-api/internal/usecase"
 	"context"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -22,7 +24,7 @@ type Container struct {
 }
 
 func NewContainer(ctx context.Context) *Container {
-	pool, err := postgres.CreateConnection(ctx)
+	pool, err := CreateConnection(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,4 +63,21 @@ func (c *Container) HTTPRouter() http.Handler {
 	c.router = router
 	return c.router
 
+}
+
+func CreateConnection(ctx context.Context) (*pgxpool.Pool, error) {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal(".env file not found")
+	}
+	dns := os.Getenv("DATABASE_URL")
+	pool, err := pgxpool.New(ctx, dns)
+	if err != nil {
+		return nil, err
+	}
+	err = pool.Ping(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return pool, err
 }
