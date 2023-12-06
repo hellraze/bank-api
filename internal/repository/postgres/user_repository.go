@@ -24,6 +24,6 @@ func (userRepository *UserRepository) Save(ctx context.Context, user *domain.Use
 		"login":    user.Login(),
 		"password": user.Password(),
 	}
-	_, err := userRepository.Pool.Query(ctx, "INSERT INTO bank.user(id, login, hash_password) VALUES(@id, @login, @password)", args)
+	_, err := userRepository.Pool.Exec(ctx, "INSERT INTO bank.user(id, login, hash_password) VALUES(@id, @login, @password);", args)
 	return err
 }
