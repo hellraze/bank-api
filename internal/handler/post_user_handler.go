@@ -37,7 +37,7 @@ func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *h
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
 	if err != nil {
-		http.Error(writer, err.Error(), http.StatusBadGateway)
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -53,7 +53,6 @@ func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *h
 	response := &POSTUserResponse{
 		ID: user.ID(),
 	}
-	writer.WriteHeader(http.StatusCreated)
 	err = json.NewEncoder(writer).Encode(response)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)

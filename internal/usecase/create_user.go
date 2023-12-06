@@ -21,6 +21,6 @@ type CreateUserCommand struct {
 
 func (useCase CreateUserUseCase) CreateUserHandler(command *CreateUserCommand) (*domain.User, error) {
 	user := domain.NewUser(command.Login, command.Password)
-	useCase.userRepository.Save(user)
-	return user, nil
+	err := useCase.userRepository.Save(user)
+	return user, err
 }
