@@ -15,7 +15,7 @@ import (
 
 type Container struct {
 	router           http.Handler
-	pool             *pgxpool.Pool
+	Pool             *pgxpool.Pool
 	usersRepository  *postgres.UserRepository
 	createUsers      *usecase.CreateUserUseCase
 	postUsersHandler *handler.POSTUserHandler
@@ -27,7 +27,7 @@ func NewContainer(ctx context.Context) *Container {
 		log.Fatal(err)
 	}
 	return &Container{
-		pool: pool,
+		Pool: pool,
 	}
 }
 
@@ -47,7 +47,7 @@ func (c *Container) CreateUsers() *usecase.CreateUserUseCase {
 
 func (c *Container) UsersRepository() domain.UserRepository {
 	if c.usersRepository == nil {
-		c.usersRepository = postgres.NewUserRepository(c.pool)
+		c.usersRepository = postgres.NewUserRepository(c.Pool)
 	}
 	return c.usersRepository
 }
