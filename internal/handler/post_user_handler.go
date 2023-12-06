@@ -30,6 +30,7 @@ func NewPOSTUserHandler(useCase *usecase.CreateUserUseCase) *POSTUserHandler {
 
 func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	var body POSTUserRequest
+	ctx := request.Context()
 	err := json.NewDecoder(request.Body).Decode(&body)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -46,7 +47,7 @@ func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *h
 		Password: string(passwordHash),
 	}
 
-	user, err := handler.useCase.CreateUserHandler(command)
+	user, err := handler.useCase.CreateUserHandler(ctx, command)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}

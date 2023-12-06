@@ -4,7 +4,6 @@ import (
 	"bank-api/internal/domain"
 	"context"
 
-	"github.com/gofrs/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -19,10 +18,9 @@ func NewUserRepository(pool *pgxpool.Pool) *UserRepository {
 	}
 }
 
-func (userRepository *UserRepository) Save(user *domain.User) error {
-	ctx := context.Background()
+func (userRepository *UserRepository) Save(ctx context.Context, user *domain.User) error {
 	args := pgx.NamedArgs{
-		"id":       uuid.Must(uuid.NewV7()),
+		"id":       user.ID(),
 		"login":    user.Login(),
 		"password": user.Password(),
 	}

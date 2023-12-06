@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"github.com/gofrs/uuid"
 )
 
@@ -23,5 +24,5 @@ func NewUser(login string, password string) *User {
 }
 
 type UserRepository interface {
-	Save(u *User) error
+	Save(ctx context.Context, u *User) error
 }
