@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gofrs/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type POSTUserHandler struct {
@@ -36,15 +35,9 @@ func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *h
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 	}
 
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	command := &usecase.CreateUserCommand{
 		Login:    body.Login,
-		Password: string(passwordHash),
+		Password: body.Password,
 	}
 
 	user, err := handler.useCase.CreateUserHandler(ctx, command)

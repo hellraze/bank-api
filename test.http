@@ -2,6 +2,6 @@ POST localhost:8080/users
 Accept: application/json
 
 {
-  "login": "tem",
-  "password": "1234"
+  "login": "rex",
+  "password": "432"
 }
