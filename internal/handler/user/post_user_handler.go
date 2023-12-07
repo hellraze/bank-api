@@ -1,4 +1,4 @@
-package handler
+package user
 
 import (
 	"bank-api/internal/usecase"

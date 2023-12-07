@@ -2,7 +2,7 @@ package di
 
 import (
 	"bank-api/internal/domain"
-	"bank-api/internal/handler"
+	"bank-api/internal/handler/user"
 	"bank-api/internal/repository/postgres"
 	"bank-api/internal/usecase"
 	"context"
@@ -20,7 +20,7 @@ type Container struct {
 	Pool             *pgxpool.Pool
 	usersRepository  *postgres.UserRepository
 	createUsers      *usecase.CreateUserUseCase
-	postUsersHandler *handler.POSTUserHandler
+	postUsersHandler *user.POSTUserHandler
 }
 
 func NewContainer(ctx context.Context) *Container {
@@ -33,9 +33,9 @@ func NewContainer(ctx context.Context) *Container {
 	}
 }
 
-func (c *Container) POSTUserHandler() *handler.POSTUserHandler {
+func (c *Container) POSTUserHandler() *user.POSTUserHandler {
 	if c.postUsersHandler == nil {
-		c.postUsersHandler = handler.NewPOSTUserHandler(c.CreateUsers())
+		c.postUsersHandler = user.NewPOSTUserHandler(c.CreateUsers())
 	}
 	return c.postUsersHandler
 }
