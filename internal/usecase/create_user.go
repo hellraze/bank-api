@@ -17,7 +17,7 @@ func NewCreateUserUseCase(userRepository domain.UserRepository) *CreateUserUseCa
 
 type CreateUserCommand struct {
 	Login    string
-	Password string
+	Password []byte
 }
 
 func (useCase CreateUserUseCase) CreateUserHandler(ctx context.Context, command *CreateUserCommand) (*domain.User, error) {
@@ -25,7 +25,7 @@ func (useCase CreateUserUseCase) CreateUserHandler(ctx context.Context, command 
 	if err != nil {
 		return nil, err
 	}
-	user := domain.NewUser(command.Login, string(password))
+	user := domain.NewUser(command.Login, password)
 	err = useCase.userRepository.Save(ctx, user)
 	return user, err
 }

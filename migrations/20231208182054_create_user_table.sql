@@ -4,7 +4,7 @@ CREATE SCHEMA bank;
 CREATE TABLE bank.user (
     id uuid PRIMARY KEY,
     login text NOT NULL,
-    hash_password text NOT NULL
+    hash_password bytea NOT NULL
 );
 -- +goose StatementEnd
 

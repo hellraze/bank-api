@@ -8,14 +8,14 @@ import (
 type User struct {
 	id           uuid.UUID
 	login        string
-	hashPassword string
+	hashPassword []byte
 }
 
 func (u *User) ID() uuid.UUID    { return u.id }
 func (u *User) Login() string    { return u.login }
-func (u *User) Password() string { return u.hashPassword }
+func (u *User) Password() []byte { return u.hashPassword }
 
-func NewUser(login string, password string) *User {
+func NewUser(login string, password []byte) *User {
 	return &User{
 		id:           uuid.Must(uuid.NewV7()),
 		login:        login,

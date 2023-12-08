@@ -14,7 +14,7 @@ type POSTUserHandler struct {
 
 type POSTUserRequest struct {
 	Login    string
-	Password string
+	Password []byte
 }
 
 type POSTUserResponse struct {
@@ -34,7 +34,6 @@ func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *h
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 	}
-
 	command := &usecase.CreateUserCommand{
 		Login:    body.Login,
 		Password: body.Password,
