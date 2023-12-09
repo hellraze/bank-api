@@ -12,10 +12,6 @@ type GETUserHandler struct {
 	useCase *usecase.ReadUserUseCase
 }
 
-type GETUserRequest struct {
-	Login string
-}
-
 type GETUserResponse struct {
 	ID    uuid.UUID
 	Login string
@@ -28,8 +24,7 @@ func NewGETUserHandler(useCase *usecase.ReadUserUseCase) *GETUserHandler {
 }
 
 func (handler *GETUserHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	query := request.URL.Query().Get("login")
-	login := query
+	login := request.URL.Query().Get("login")
 	ctx := request.Context()
 	command := &usecase.ReadUserCommand{
 		Login: login,

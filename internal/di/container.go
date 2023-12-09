@@ -39,7 +39,7 @@ func NewContainer(ctx context.Context) *Container {
 
 func (c *Container) POSTUserHandler() *user.POSTUserHandler {
 	if c.postUsersHandler == nil {
-		c.postUsersHandler = user.NewPOSTUserHandler(c.CreateUsers())
+		c.postUsersHandler = user.NewPOSTUserHandler(c.CreateUsers(), c.ReadUsers())
 	}
 	return c.postUsersHandler
 }
