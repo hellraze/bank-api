@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"bank-api/internal/domain"
+	"bank-api/internal/utils"
 	"context"
 )
 
@@ -21,11 +22,11 @@ type CreateUserCommand struct {
 }
 
 func (useCase CreateUserUseCase) CreateUserHandler(ctx context.Context, command *CreateUserCommand) (*domain.User, error) {
-	password, err := GenerateFromPassword(command.Password)
+	password, err := utils.GenerateFromPassword(command.Password)
 	if err != nil {
 		return nil, err
 	}
-	user := domain.NewUser(command.Login, password)
+	user := domain.NewUser(utils.GenerateID(), command.Login, password)
 	err = useCase.userRepository.Save(ctx, user)
 	return user, err
 }

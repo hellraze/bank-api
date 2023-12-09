@@ -16,11 +16,15 @@ import (
 )
 
 type Container struct {
-	router           http.Handler
-	Pool             *pgxpool.Pool
+	router http.Handler
+	Pool   *pgxpool.Pool
+
 	usersRepository  *postgres.UserRepository
 	createUsers      *usecase.CreateUserUseCase
 	postUsersHandler *user.POSTUserHandler
+
+	readUsers       *usecase.ReadUserUseCase
+	getUsersHandler *user.GETUserHandler
 }
 
 func NewContainer(ctx context.Context) *Container {
@@ -47,6 +51,20 @@ func (c *Container) CreateUsers() *usecase.CreateUserUseCase {
 	return c.createUsers
 }
 
+func (c *Container) GETUserHandler() *user.GETUserHandler {
+	if c.getUsersHandler == nil {
+		c.getUsersHandler = user.NewGETUserHandler(c.ReadUsers())
+	}
+	return c.getUsersHandler
+}
+
+func (c *Container) ReadUsers() *usecase.ReadUserUseCase {
+	if c.readUsers == nil {
+		c.readUsers = usecase.NewReadUserUseCase(c.UsersRepository())
+	}
+	return c.readUsers
+}
+
 func (c *Container) UsersRepository() domain.UserRepository {
 	if c.usersRepository == nil {
 		c.usersRepository = postgres.NewUserRepository(c.Pool)
@@ -60,6 +78,7 @@ func (c *Container) HTTPRouter() http.Handler {
 	}
 	router := mux.NewRouter()
 	router.Handle("/users", c.POSTUserHandler()).Methods(http.MethodPost)
+	router.Handle("/users", c.GETUserHandler()).Methods(http.MethodGet)
 	c.router = router
 	return c.router
 

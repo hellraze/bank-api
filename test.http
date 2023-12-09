@@ -5,3 +5,7 @@ Accept: application/json
   "login": "john_doe",
   "password": "1234"
 }
+
+###
+
+GET localhost:8080/users?login=john_doe
