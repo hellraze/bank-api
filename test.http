@@ -8,7 +8,13 @@ Accept: application/json
 
 ###
 
-GET localhost:8080/users?login=matt
+POST localhost:8080/token
+Accept: application/json
+
+{
+  "login": "matt",
+  "password": "4123"
+}
 
 ###
 

@@ -5,9 +5,10 @@ import (
 	"bank-api/internal/handler/user"
 	"bank-api/internal/repository/postgres"
 	"bank-api/internal/usecase"
+	"bank-api/internal/usecase/middleware"
 	"context"
+	"fmt"
 	"github.com/joho/godotenv"
-	"log"
 	"net/http"
 	"os"
 
@@ -24,13 +25,13 @@ type Container struct {
 	postUsersHandler *user.POSTUserHandler
 
 	readUsers       *usecase.ReadUserUseCase
-	getUsersHandler *user.GETUserHandler
+	getUsersHandler *user.POSTTokenHandler
 }
 
 func NewContainer(ctx context.Context) *Container {
 	pool, err := CreateConnection(ctx)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("error: %w", err)
 	}
 	return &Container{
 		Pool: pool,
@@ -51,9 +52,9 @@ func (c *Container) CreateUsers() *usecase.CreateUserUseCase {
 	return c.createUsers
 }
 
-func (c *Container) GETUserHandler() *user.GETUserHandler {
+func (c *Container) POSTTokenHandler() *user.POSTTokenHandler {
 	if c.getUsersHandler == nil {
-		c.getUsersHandler = user.NewGETUserHandler(c.ReadUsers())
+		c.getUsersHandler = user.NewPOSTTokenHandler(c.ReadUsers())
 	}
 	return c.getUsersHandler
 }
@@ -77,8 +78,9 @@ func (c *Container) HTTPRouter() http.Handler {
 		return c.router
 	}
 	router := mux.NewRouter()
+	router.Use(middleware.Recover)
 	router.Handle("/users", c.POSTUserHandler()).Methods(http.MethodPost)
-	router.Handle("/users", c.GETUserHandler()).Methods(http.MethodGet)
+	router.Handle("/token", c.POSTTokenHandler()).Methods(http.MethodPost)
 	c.router = router
 	return c.router
 
@@ -87,7 +89,7 @@ func (c *Container) HTTPRouter() http.Handler {
 func CreateConnection(ctx context.Context) (*pgxpool.Pool, error) {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal(".env file not found")
+		fmt.Println(".env file not found")
 	}
 	dns := os.Getenv("DATABASE_URL")
 	pool, err := pgxpool.New(ctx, dns)
