@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-
-	"github.com/gofrs/uuid"
 )
 
 type POSTUserHandler struct {
@@ -20,7 +18,7 @@ type POSTUserRequest struct {
 }
 
 type POSTUserResponse struct {
-	ID uuid.UUID
+	SignedToken string `json:"signedToken"`
 }
 
 func NewPOSTUserHandler(useCase *usecase.CreateUserUseCase, readUseCase *usecase.ReadUserUseCase) *POSTUserHandler {
@@ -51,8 +49,12 @@ func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *h
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusInternalServerError)
 		}
+		signedToken, err := usecase.NewSignedToken(user.ID(), []byte("asd"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusInternalServerError)
+		}
 		response := &POSTUserResponse{
-			ID: user.ID(),
+			SignedToken: signedToken,
 		}
 		err = json.NewEncoder(writer).Encode(response)
 		if err != nil {

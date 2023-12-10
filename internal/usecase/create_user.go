@@ -4,6 +4,7 @@ import (
 	"bank-api/internal/domain"
 	"bank-api/internal/utils"
 	"context"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type CreateUserUseCase struct {
@@ -22,7 +23,7 @@ type CreateUserCommand struct {
 }
 
 func (useCase CreateUserUseCase) CreateUserHandler(ctx context.Context, command *CreateUserCommand) (*domain.User, error) {
-	password, err := utils.GenerateFromPassword(command.Password)
+	password, err := bcrypt.GenerateFromPassword(command.Password, bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}

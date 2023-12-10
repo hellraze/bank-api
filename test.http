@@ -2,10 +2,20 @@ POST localhost:8080/users
 Accept: application/json
 
 {
-  "login": "john_doe",
-  "password": "1234"
+  "login": "jane_doe",
+  "password": "4321"
 }
 
 ###
 
 GET localhost:8080/users?login=john_doe
+
+###
+
+POST localhost:8080/users
+Accept: application/json
+
+{
+  "login": "somebody",
+  "password": "once"
+}
