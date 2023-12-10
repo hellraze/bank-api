@@ -8,7 +8,7 @@ Accept: application/json
 
 ###
 
-GET localhost:8080/users?login=john_doe
+GET localhost:8080/users?login=matt
 
 ###
 
@@ -16,6 +16,6 @@ POST localhost:8080/users
 Accept: application/json
 
 {
-  "login": "somebody",
-  "password": "once"
+  "login": "matt",
+  "password": "4123"
 }

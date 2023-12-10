@@ -23,7 +23,7 @@ func GetStructClaims(id uuid.UUID) jwt.Claims {
 func NewSignedToken(id uuid.UUID, secretKey []byte) (string, error) {
 	claim := GetStructClaims(id)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
-	signedToken, err := token.SignedString([]byte(secretKey))
+	signedToken, err := token.SignedString(secretKey)
 	if err != nil {
 		return "", err
 	}

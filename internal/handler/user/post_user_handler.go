@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"os"
 )
 
 type POSTUserHandler struct {
@@ -30,6 +31,7 @@ func NewPOSTUserHandler(useCase *usecase.CreateUserUseCase, readUseCase *usecase
 
 func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	var body POSTUserRequest
+	secretKey := os.Getenv("SECRET_KEY")
 	ctx := request.Context()
 	err := json.NewDecoder(request.Body).Decode(&body)
 	if err != nil {
@@ -49,7 +51,7 @@ func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *h
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusInternalServerError)
 		}
-		signedToken, err := usecase.NewSignedToken(user.ID(), []byte("asd"))
+		signedToken, err := usecase.NewSignedToken(user.ID(), []byte(secretKey))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusInternalServerError)
 		}
