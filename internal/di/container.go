@@ -2,10 +2,13 @@ package di
 
 import (
 	"bank-api/internal/domain"
-	"bank-api/internal/handler/user"
+	"bank-api/internal/handler/accounts"
+	"bank-api/internal/handler/middleware"
+	"bank-api/internal/handler/tokens"
+	"bank-api/internal/handler/users"
 	"bank-api/internal/repository/postgres"
-	"bank-api/internal/usecase"
-	"bank-api/internal/usecase/middleware"
+	accounts2 "bank-api/internal/usecase/accounts"
+	users2 "bank-api/internal/usecase/users"
 	"context"
 	"fmt"
 	"github.com/joho/godotenv"
@@ -18,14 +21,18 @@ import (
 
 type Container struct {
 	router http.Handler
-	Pool   *pgxpool.Pool
+	pool   *pgxpool.Pool
 
 	usersRepository  *postgres.UserRepository
-	createUsers      *usecase.CreateUserUseCase
-	postUsersHandler *user.POSTUserHandler
+	createUsers      *users2.CreateUserUseCase
+	postUsersHandler *users.POSTUserHandler
 
-	readUsers       *usecase.ReadUserUseCase
-	getUsersHandler *user.POSTTokenHandler
+	readUsers       *users2.ReadUserUseCase
+	getUsersHandler *tokens.POSTTokenHandler
+
+	createAccount      *accounts2.CreateAccountUseCase
+	accountHandler     *accounts.POSTAccountHandler
+	accountsRepository *postgres.AccountRepository
 }
 
 func NewContainer(ctx context.Context) *Container {
@@ -34,43 +41,68 @@ func NewContainer(ctx context.Context) *Container {
 		fmt.Printf("error: %w", err)
 	}
 	return &Container{
-		Pool: pool,
+		pool: pool,
 	}
 }
 
-func (c *Container) POSTUserHandler() *user.POSTUserHandler {
+func (c *Container) Close() {
+	c.pool.Close()
+}
+
+func (c *Container) POSTUserHandler() *users.POSTUserHandler {
 	if c.postUsersHandler == nil {
-		c.postUsersHandler = user.NewPOSTUserHandler(c.CreateUsers(), c.ReadUsers())
+		c.postUsersHandler = users.NewPOSTUserHandler(c.CreateUsers(), c.ReadUsers())
 	}
 	return c.postUsersHandler
 }
 
-func (c *Container) CreateUsers() *usecase.CreateUserUseCase {
+func (c *Container) CreateUsers() *users2.CreateUserUseCase {
 	if c.createUsers == nil {
-		c.createUsers = usecase.NewCreateUserUseCase(c.UsersRepository())
+		c.createUsers = users2.NewCreateUserUseCase(c.UsersRepository())
 	}
 	return c.createUsers
 }
 
-func (c *Container) POSTTokenHandler() *user.POSTTokenHandler {
+func (c *Container) POSTTokenHandler() *tokens.POSTTokenHandler {
 	if c.getUsersHandler == nil {
-		c.getUsersHandler = user.NewPOSTTokenHandler(c.ReadUsers())
+		c.getUsersHandler = tokens.NewPOSTTokenHandler(c.ReadUsers())
 	}
 	return c.getUsersHandler
 }
 
-func (c *Container) ReadUsers() *usecase.ReadUserUseCase {
+func (c *Container) ReadUsers() *users2.ReadUserUseCase {
 	if c.readUsers == nil {
-		c.readUsers = usecase.NewReadUserUseCase(c.UsersRepository())
+		c.readUsers = users2.NewReadUserUseCase(c.UsersRepository())
 	}
 	return c.readUsers
 }
 
 func (c *Container) UsersRepository() domain.UserRepository {
 	if c.usersRepository == nil {
-		c.usersRepository = postgres.NewUserRepository(c.Pool)
+		c.usersRepository = postgres.NewUserRepository(c.pool)
 	}
 	return c.usersRepository
+}
+
+func (c *Container) POSTAccountHandler() *accounts.POSTAccountHandler {
+	if c.accountHandler == nil {
+		c.accountHandler = accounts.NewPOSTAccountHandler(c.CreateAccount())
+	}
+	return c.accountHandler
+}
+
+func (c *Container) CreateAccount() *accounts2.CreateAccountUseCase {
+	if c.createAccount == nil {
+		c.createAccount = accounts2.NewCreateAccountUseCase(c.AccountsRepository())
+	}
+	return c.createAccount
+}
+
+func (c *Container) AccountsRepository() domain.AccountRepository {
+	if c.accountsRepository == nil {
+		c.accountsRepository = postgres.NewAccountRepository(c.pool)
+	}
+	return c.accountsRepository
 }
 
 func (c *Container) HTTPRouter() http.Handler {
@@ -79,8 +111,9 @@ func (c *Container) HTTPRouter() http.Handler {
 	}
 	router := mux.NewRouter()
 	router.Use(middleware.Recover)
-	router.Handle("/users", c.POSTUserHandler()).Methods(http.MethodPost)
-	router.Handle("/token", c.POSTTokenHandler()).Methods(http.MethodPost)
+	router.Handle("/api/users", c.POSTUserHandler()).Methods(http.MethodPost)
+	router.Handle("/api/tokens", c.POSTTokenHandler()).Methods(http.MethodPost)
+	router.Handle("/api/accounts", c.POSTAccountHandler()).Methods(http.MethodPost)
 	c.router = router
 	return c.router
 

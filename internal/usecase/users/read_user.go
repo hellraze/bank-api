@@ -1,4 +1,4 @@
-package usecase
+package users
 
 import (
 	"bank-api/internal/domain"

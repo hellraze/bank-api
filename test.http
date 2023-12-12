@@ -1,4 +1,4 @@
-POST localhost:8080/users
+POST localhost:8080/api/users
 Accept: application/json
 
 {
@@ -8,7 +8,7 @@ Accept: application/json
 
 ###
 
-POST localhost:8080/token
+POST localhost:8080/api/tokens
 Accept: application/json
 
 {
@@ -18,10 +18,14 @@ Accept: application/json
 
 ###
 
-POST localhost:8080/users
+POST localhost:8080/api/users
 Accept: application/json
 
 {
   "login": "matt",
   "password": "4123"
 }
+
+###
+POST localhost:8080/api/accounts
+Authorization: ahahah

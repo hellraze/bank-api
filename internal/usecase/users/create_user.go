@@ -1,8 +1,8 @@
-package usecase
+package users
 
 import (
 	"bank-api/internal/domain"
-	"bank-api/internal/utils"
+	"bank-api/pkg"
 	"context"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -22,12 +22,12 @@ type CreateUserCommand struct {
 	Password []byte
 }
 
-func (useCase CreateUserUseCase) CreateUserHandler(ctx context.Context, command *CreateUserCommand) (*domain.User, error) {
+func (useCase *CreateUserUseCase) CreateUserHandler(ctx context.Context, command *CreateUserCommand) (*domain.User, error) {
 	password, err := bcrypt.GenerateFromPassword(command.Password, bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
-	user := domain.NewUser(utils.GenerateID(), command.Login, password)
+	user := domain.NewUser(pkg.GenerateID(), command.Login, password)
 	err = useCase.userRepository.Save(ctx, user)
 	return user, err
 }

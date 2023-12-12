@@ -1,7 +1,8 @@
-package user
+package tokens
 
 import (
-	"bank-api/internal/usecase"
+	"bank-api/internal/usecase/tokens"
+	"bank-api/internal/usecase/users"
 	"encoding/json"
 	"errors"
 	"golang.org/x/crypto/bcrypt"
@@ -10,7 +11,7 @@ import (
 )
 
 type POSTTokenHandler struct {
-	useCase *usecase.ReadUserUseCase
+	useCase *users.ReadUserUseCase
 }
 
 type POSTTokenResponse struct {
@@ -22,7 +23,7 @@ type POSTTokenRequest struct {
 	Password string
 }
 
-func NewPOSTTokenHandler(useCase *usecase.ReadUserUseCase) *POSTTokenHandler {
+func NewPOSTTokenHandler(useCase *users.ReadUserUseCase) *POSTTokenHandler {
 	return &POSTTokenHandler{
 		useCase: useCase,
 	}
@@ -37,7 +38,7 @@ func (handler *POSTTokenHandler) ServeHTTP(writer http.ResponseWriter, request *
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 	}
 	password, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
-	command := &usecase.ReadUserCommand{
+	command := &users.ReadUserCommand{
 		Login: body.Login,
 	}
 
@@ -48,7 +49,7 @@ func (handler *POSTTokenHandler) ServeHTTP(writer http.ResponseWriter, request *
 	err = bcrypt.CompareHashAndPassword(password, user.Password())
 
 	if err != nil {
-		signedToken, err := usecase.NewSignedToken(user.ID(), []byte(secretKey))
+		signedToken, err := tokens.NewSignedToken(user.ID(), []byte(secretKey))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusInternalServerError)
 		}

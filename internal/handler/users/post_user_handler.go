@@ -1,7 +1,8 @@
-package user
+package users
 
 import (
-	"bank-api/internal/usecase"
+	"bank-api/internal/usecase/tokens"
+	"bank-api/internal/usecase/users"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -9,8 +10,8 @@ import (
 )
 
 type POSTUserHandler struct {
-	useCase     *usecase.CreateUserUseCase
-	readUseCase *usecase.ReadUserUseCase
+	useCase     *users.CreateUserUseCase
+	readUseCase *users.ReadUserUseCase
 }
 
 type POSTUserRequest struct {
@@ -22,7 +23,7 @@ type POSTUserResponse struct {
 	SignedToken string `json:"signedToken"`
 }
 
-func NewPOSTUserHandler(useCase *usecase.CreateUserUseCase, readUseCase *usecase.ReadUserUseCase) *POSTUserHandler {
+func NewPOSTUserHandler(useCase *users.CreateUserUseCase, readUseCase *users.ReadUserUseCase) *POSTUserHandler {
 	return &POSTUserHandler{
 		useCase:     useCase,
 		readUseCase: readUseCase,
@@ -37,11 +38,11 @@ func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *h
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 	}
-	command := &usecase.CreateUserCommand{
+	command := &users.CreateUserCommand{
 		Login:    body.Login,
 		Password: body.Password,
 	}
-	readCommand := &usecase.ReadUserCommand{
+	readCommand := &users.ReadUserCommand{
 		Login: body.Login,
 	}
 
@@ -51,7 +52,7 @@ func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *h
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusInternalServerError)
 		}
-		signedToken, err := usecase.NewSignedToken(user.ID(), []byte(secretKey))
+		signedToken, err := tokens.NewSignedToken(user.ID(), []byte(secretKey))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusInternalServerError)
 		}
@@ -63,7 +64,7 @@ func (handler *POSTUserHandler) ServeHTTP(writer http.ResponseWriter, request *h
 			http.Error(writer, err.Error(), http.StatusInternalServerError)
 		}
 	} else {
-		err = errors.New("user already exists")
+		err = errors.New("users already exists")
 		http.Error(writer, err.Error(), http.StatusConflict)
 	}
 

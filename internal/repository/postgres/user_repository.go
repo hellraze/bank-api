@@ -25,7 +25,7 @@ func (userRepository *UserRepository) Save(ctx context.Context, user *domain.Use
 		"login":    user.Login(),
 		"password": user.Password(),
 	}
-	_, err := userRepository.Pool.Exec(ctx, "INSERT INTO bank.user(id, login, hash_password) VALUES(@id, @login, @password);", args)
+	_, err := userRepository.Pool.Exec(ctx, "INSERT INTO bank.users(user_id, login, hash_password) VALUES(@id, @login, @password)", args)
 	return err
 }
 
@@ -34,7 +34,7 @@ func (userRepository *UserRepository) FindByLogin(ctx context.Context, login str
 		id       uuid.UUID
 		password []byte
 	)
-	err := userRepository.Pool.QueryRow(ctx, "SELECT * FROM bank.user WHERE login=($1)", login).Scan(&id, &login, &password)
+	err := userRepository.Pool.QueryRow(ctx, "SELECT * FROM bank.users WHERE login=($1)", login).Scan(&id, &login, &password)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
