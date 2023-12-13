@@ -113,7 +113,7 @@ func (c *Container) HTTPRouter() http.Handler {
 	router.Use(middleware.Recover)
 	router.Handle("/api/users", c.POSTUserHandler()).Methods(http.MethodPost)
 	router.Handle("/api/tokens", c.POSTTokenHandler()).Methods(http.MethodPost)
-	router.Handle("/api/accounts", c.POSTAccountHandler()).Methods(http.MethodPost)
+	router.Handle("/api/accounts", middleware.AuthMiddleware(c.POSTAccountHandler())).Methods(http.MethodPost)
 	c.router = router
 	return c.router
 
