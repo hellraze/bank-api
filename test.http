@@ -28,9 +28,9 @@ Accept: application/json
 
 ###
 POST localhost:8080/api/accounts
-Accept: application/json
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDI0NjU5NjAsIklEIjoiMDE4YzYyYTMtNjhkMy03OGExLWE1MDItNDk2ZGFkYmM3OGMzIn0.wGd7TL7u_M9FdB47-PbCn_mgZ0shTMGIbzK8V4-E6Ew
+Accept: application/json
 
 {
-  "name": "first",
+  "name": "first"
 }
