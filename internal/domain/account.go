@@ -20,9 +20,10 @@ func (a *Account) Deposit(deposit int) { a.balance += deposit }
 
 func NewAccount(id uuid.UUID, name string, userID uuid.UUID) *Account {
 	return &Account{
-		id:     id,
-		name:   name,
-		userID: userID,
+		id:      id,
+		name:    name,
+		userID:  userID,
+		balance: 0,
 	}
 }
 

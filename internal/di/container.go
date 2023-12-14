@@ -36,6 +36,7 @@ type Container struct {
 
 	depositAccount            *accounts2.DepositAccountUseCase
 	postDepositAccountHandler *accounts.POSTDepositAccountHandler
+	readAccount               *accounts2.ReadAccountUseCase
 }
 
 func NewContainer(ctx context.Context) *Container {
@@ -103,7 +104,7 @@ func (c *Container) UsersRepository() domain.UserRepository {
 
 func (c *Container) POSTAccountHandler() *accounts.POSTAccountHandler {
 	if c.accountHandler == nil {
-		c.accountHandler = accounts.NewPOSTAccountHandler(c.CreateAccount())
+		c.accountHandler = accounts.NewPOSTAccountHandler(c.CreateAccount(), c.ReadAccount())
 	}
 	return c.accountHandler
 }
@@ -115,6 +116,12 @@ func (c *Container) CreateAccount() *accounts2.CreateAccountUseCase {
 	return c.createAccount
 }
 
+func (c *Container) ReadAccount() *accounts2.ReadAccountUseCase {
+	if c.readAccount == nil {
+		c.readAccount = accounts2.NewReadAccountUseCase(c.AccountsRepository())
+	}
+	return c.readAccount
+}
 func (c *Container) AccountsRepository() domain.AccountRepository {
 	if c.accountsRepository == nil {
 		c.accountsRepository = postgres.NewAccountRepository(c.pool)

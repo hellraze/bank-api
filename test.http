@@ -28,9 +28,18 @@ Accept: application/json
 
 ###
 POST localhost:8080/api/accounts
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDI1NzcxODAsIklEIjoiMDE4YzY5NGEtZjVmYi03YjJlLThiYTctYjMxN2UzZjg0NjU1In0.0a6E1n2G5q6t-D5WdjZk086R25bvkICJOEVtkOIglk0
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDI1ODM5NDUsIklEIjoiMDE4YzY5NGEtZjVmYi03YjJlLThiYTctYjMxN2UzZjg0NjU1In0.71yXhAtvJe4cQ3HPxWT2lDCVZnBraHfmThrrgSEHZxY
 Accept: application/json
 
 {
   "name": "first"
+}
+
+###
+POST localhost:8080/api/deposit
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDI1ODc1ODAsIklEIjoiMDE4YzY5NGEtZjVmYi03YjJlLThiYTctYjMxN2UzZjg0NjU1In0.3IM5GAet8IXaAW5UwgypZNDb2eohrV2SXIk_UGhqvwUgit
+Accept: application/json
+
+{
+  "deposit": 100
 }

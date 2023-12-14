@@ -17,11 +17,11 @@ func NewDepositAccountUseCase(accountRepository domain.AccountRepository) *Depos
 }
 
 type DepositAccountCommand struct {
-	ID      uuid.UUID
+	UserID  uuid.UUID
 	Deposit int
 }
 
 func (useCase DepositAccountUseCase) DepositAccountHandler(ctx context.Context, command *DepositAccountCommand) error {
-	err := useCase.accountRepository.UpdateAccountBalance(ctx, command.ID, command.Deposit)
+	err := useCase.accountRepository.UpdateAccountBalance(ctx, command.UserID, command.Deposit)
 	return err
 }

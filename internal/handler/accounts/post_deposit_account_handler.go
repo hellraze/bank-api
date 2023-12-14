@@ -38,7 +38,7 @@ func (handler *POSTDepositAccountHandler) ServeHTTP(writer http.ResponseWriter, 
 		if id, exists := claims["ID"].(string); exists {
 			id, _ := uuid.FromString(id)
 			depositCommand := &accounts.DepositAccountCommand{
-				ID:      id,
+				UserID:  id,
 				Deposit: body.Deposit,
 			}
 			err := handler.useCase.DepositAccountHandler(request.Context(), depositCommand)

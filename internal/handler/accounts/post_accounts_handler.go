@@ -21,9 +21,10 @@ type POSTAccountRequest struct {
 	Name string `json:"name"`
 }
 
-func NewPOSTAccountHandler(useCase *accounts.CreateAccountUseCase) *POSTAccountHandler {
+func NewPOSTAccountHandler(useCase *accounts.CreateAccountUseCase, readAccount *accounts.ReadAccountUseCase) *POSTAccountHandler {
 	return &POSTAccountHandler{
-		useCase: useCase,
+		useCase:     useCase,
+		readAccount: readAccount,
 	}
 }
 
@@ -47,7 +48,8 @@ func (handler *POSTAccountHandler) ServeHTTP(writer http.ResponseWriter, request
 				UserID: userID,
 				Name:   body.Name,
 			}
-			_, err = handler.readAccount.ReadAccountHandler(request.Context(), readCommand)
+			account, err := handler.readAccount.ReadAccountHandler(request.Context(), readCommand)
+			fmt.Println(account)
 			if err != nil {
 				command := &accounts.CreateAccountCommand{
 					UserID: userID,
