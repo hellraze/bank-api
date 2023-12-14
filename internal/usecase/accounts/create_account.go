@@ -2,7 +2,7 @@ package accounts
 
 import (
 	"bank-api/internal/domain"
-	"bank-api/pkg"
+	"bank-api/internal/pkg"
 	"context"
 	"github.com/gofrs/uuid"
 )

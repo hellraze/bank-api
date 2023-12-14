@@ -13,7 +13,8 @@ import (
 )
 
 type POSTAccountHandler struct {
-	useCase *accounts.CreateAccountUseCase
+	useCase     *accounts.CreateAccountUseCase
+	readAccount *accounts.ReadAccountUseCase
 }
 
 type POSTAccountRequest struct {
@@ -42,15 +43,30 @@ func (handler *POSTAccountHandler) ServeHTTP(writer http.ResponseWriter, request
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if id, exists := claims["ID"].(string); exists {
 			userID, _ := uuid.FromString(id)
-			command := &accounts.CreateAccountCommand{
+			readCommand := &accounts.ReadAccountCommand{
 				UserID: userID,
 				Name:   body.Name,
 			}
-			_, err = handler.useCase.CreateAccountHandler(request.Context(), command)
+			_, err = handler.readAccount.ReadAccountHandler(request.Context(), readCommand)
+			if err != nil {
+				command := &accounts.CreateAccountCommand{
+					UserID: userID,
+					Name:   body.Name,
+				}
+				account, err := handler.useCase.CreateAccountHandler(request.Context(), command)
+				if err != nil {
+					http.Error(writer, err.Error(), http.StatusInternalServerError)
+				}
+				response := &POSTAccountResponse{
+					Account: account,
+				}
+				err = json.NewEncoder(writer).Encode(response)
+			} else {
+				fmt.Println("Идентификатор не найден или не является строкой")
+			}
 		} else {
-			fmt.Println("Идентификатор не найден или не является строкой")
+			fmt.Println("Неверный токен или отсутствуют данные (claims)")
 		}
-	} else {
-		fmt.Println("Неверный токен или отсутствуют данные (claims)")
+
 	}
 }

@@ -33,6 +33,9 @@ type Container struct {
 	createAccount      *accounts2.CreateAccountUseCase
 	accountHandler     *accounts.POSTAccountHandler
 	accountsRepository *postgres.AccountRepository
+
+	depositAccount            *accounts2.DepositAccountUseCase
+	postDepositAccountHandler *accounts.POSTDepositAccountHandler
 }
 
 func NewContainer(ctx context.Context) *Container {
@@ -47,6 +50,20 @@ func NewContainer(ctx context.Context) *Container {
 
 func (c *Container) Close() {
 	c.pool.Close()
+}
+
+func (c *Container) POSTDepositAccountHandler() *accounts.POSTDepositAccountHandler {
+	if c.postDepositAccountHandler == nil {
+		c.postDepositAccountHandler = accounts.NewPOSTDepositAccountHandler(c.DepositAccount())
+	}
+	return c.postDepositAccountHandler
+}
+
+func (c *Container) DepositAccount() *accounts2.DepositAccountUseCase {
+	if c.depositAccount == nil {
+		c.depositAccount = accounts2.NewDepositAccountUseCase(c.AccountsRepository())
+	}
+	return c.depositAccount
 }
 
 func (c *Container) POSTUserHandler() *users.POSTUserHandler {
@@ -111,9 +128,15 @@ func (c *Container) HTTPRouter() http.Handler {
 	}
 	router := mux.NewRouter()
 	router.Use(middleware.Recover)
-	router.Handle("/api/users", c.POSTUserHandler()).Methods(http.MethodPost)
-	router.Handle("/api/tokens", c.POSTTokenHandler()).Methods(http.MethodPost)
-	router.Handle("/api/accounts", middleware.AuthMiddleware(c.POSTAccountHandler())).Methods(http.MethodPost)
+
+	publicRouter := router.PathPrefix("/api").Subrouter()
+	publicRouter.Handle("/users", c.POSTUserHandler()).Methods(http.MethodPost)
+	publicRouter.Handle("/tokens", c.POSTTokenHandler()).Methods(http.MethodPost)
+
+	securedRouter := router.PathPrefix("/api").Subrouter()
+	securedRouter.Use(middleware.AuthMiddleware)
+	securedRouter.Handle("/accounts", c.POSTAccountHandler()).Methods(http.MethodPost)
+	securedRouter.Handle("/deposit", c.POSTDepositAccountHandler()).Methods(http.MethodPost)
 	c.router = router
 	return c.router
 

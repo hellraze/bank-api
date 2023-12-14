@@ -2,7 +2,7 @@ package users
 
 import (
 	"bank-api/internal/domain"
-	"bank-api/pkg"
+	"bank-api/internal/pkg"
 	"context"
 	"golang.org/x/crypto/bcrypt"
 )

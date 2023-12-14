@@ -9,6 +9,7 @@ CREATE TABLE bank.user (
 CREATE TABLE bank.account (
                               account_id uuid PRIMARY KEY,
                               name text UNIQUE NOT NULL,
+                              balance int,
                               user_id uuid REFERENCES bank.user(user_id) NOT NULL
 );
 -- +goose StatementEnd
