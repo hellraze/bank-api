@@ -64,7 +64,7 @@ func (accountRepository *AccountRepository) UpdateAccountBalance(ctx context.Con
 		return err
 	}
 	account.Deposit(deposit)
-	_, err = accountRepository.Pool.Exec(ctx, "UPDATE bank.account SET balance = $2 WHERE account_id=$1 FOR UPDATE", account.UserID(), account.Balance())
+	_, err = accountRepository.Pool.Exec(ctx, "UPDATE bank.account SET balance = ($2) WHERE account_id=($1) FOR UPDATE", account.UserID(), account.Balance())
 	if err != nil {
 		return err
 	}
