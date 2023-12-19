@@ -13,25 +13,21 @@ type PoolTransactionManager struct {
 }
 
 func (p *PoolTransactionManager) Do(ctx context.Context, f func(ctx context.Context) error) error {
-	// TODO: begin transaction
-	// TODO: set transaction to context
 	tx, err := p.connection.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	txContext := context.WithValue(ctx, "transaction", tx)
 	if err = f(txContext); err != nil {
-		// TODO: rollback transaction
 		tx.Rollback(ctx)
 		return err
 	}
-
-	// TODO: commit transaction
 	err = tx.Commit(ctx)
 	if err != nil {
+		tx.Rollback(ctx)
 		return err
 	}
-	return nil
+	return err
 }
 
 type PoolConnection struct {
@@ -50,14 +46,12 @@ func (c *PoolConnection) Query(ctx context.Context, sql string, args ...interfac
 	return c.pool.Query(ctx, sql, args...)
 }
 func (c *PoolConnection) Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error) {
-	// TODO: если транзакция в контексте, выполнять запрос с ее помощью
 	if tx, ok := ctx.Value("transaction").(pgx.Tx); ok {
 		return tx.Exec(ctx, sql, arguments...)
 	}
 	return c.pool.Exec(ctx, sql, arguments...)
 }
 func (c *PoolConnection) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
-	// TODO: если транзакция в контексте, выполнять запрос с ее помощью
 	if tx, ok := ctx.Value("transaction").(pgx.Tx); ok {
 		return tx.QueryRow(ctx, sql, args...)
 	}
