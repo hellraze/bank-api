@@ -9,11 +9,12 @@ import (
 )
 
 type PoolTransactionManager struct {
-	connection *pgxpool.Pool
+	Connection *pgxpool.Pool
 }
 
 func (p *PoolTransactionManager) Do(ctx context.Context, f func(ctx context.Context) error) error {
-	tx, err := p.connection.Begin(ctx)
+	pool := NewPoolConnection(p.Connection)
+	tx, err := pool.pool.Begin(ctx)
 	if err != nil {
 		return err
 	}

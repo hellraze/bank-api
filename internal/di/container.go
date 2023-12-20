@@ -6,6 +6,7 @@ import (
 	"bank-api/internal/handler/middleware"
 	"bank-api/internal/handler/tokens"
 	"bank-api/internal/handler/users"
+	postgres2 "bank-api/internal/pkg/persistence/postgres"
 	"bank-api/internal/repository/postgres"
 	accounts2 "bank-api/internal/usecase/accounts"
 	users2 "bank-api/internal/usecase/users"
@@ -20,8 +21,9 @@ import (
 )
 
 type Container struct {
-	router http.Handler
-	pool   *pgxpool.Pool
+	router             http.Handler
+	pool               *pgxpool.Pool
+	transactionManager *postgres2.PoolTransactionManager
 
 	usersRepository  *postgres.UserRepository
 	createUsers      *users2.CreateUserUseCase
@@ -124,7 +126,7 @@ func (c *Container) ReadAccount() *accounts2.ReadAccountUseCase {
 }
 func (c *Container) AccountsRepository() domain.AccountRepository {
 	if c.accountsRepository == nil {
-		c.accountsRepository = postgres.NewAccountRepository(c.pool)
+		c.accountsRepository = postgres.NewAccountRepository(c.pool, c.transactionManager)
 	}
 	return c.accountsRepository
 }

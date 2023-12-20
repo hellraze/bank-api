@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"bank-api/internal/domain"
+	"bank-api/internal/pkg/persistence/postgres"
 	"context"
 	"fmt"
 	"github.com/gofrs/uuid"
@@ -10,12 +11,14 @@ import (
 )
 
 type AccountRepository struct {
-	Pool *pgxpool.Pool
+	Pool                   *pgxpool.Pool
+	PoolTransactionManager *postgres.PoolTransactionManager
 }
 
-func NewAccountRepository(pool *pgxpool.Pool) *AccountRepository {
+func NewAccountRepository(pool *pgxpool.Pool, transactionManager *postgres.PoolTransactionManager) *AccountRepository {
 	return &AccountRepository{
-		Pool: pool,
+		Pool:                   pool,
+		PoolTransactionManager: transactionManager,
 	}
 }
 
@@ -50,7 +53,7 @@ func (accountRepository *AccountRepository) FindByIDForUpdate(ctx context.Contex
 		userID uuid.UUID
 		name   string
 	)
-	err := accountRepository.Pool.QueryRow(ctx, "SELECT account_id, name, user_id FROM bank.account WHERE user_id = ($1) FOR UPDATE", id).Scan(&id, &name, &userID)
+	err := accountRepository.PoolTransactionManager.Connection.QueryRow(ctx, "SELECT account_id, name, user_id FROM bank.account WHERE user_id = ($1) FOR UPDATE", id).Scan(&id, &name, &userID)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +67,7 @@ func (accountRepository *AccountRepository) UpdateAccountBalance(ctx context.Con
 		return err
 	}
 	account.Deposit(deposit)
-	_, err = accountRepository.Pool.Exec(ctx, "UPDATE bank.account SET balance = ($2) WHERE account_id=($1) FOR UPDATE", account.UserID(), account.Balance())
+	_, err = accountRepository.PoolTransactionManager.Connection.Exec(ctx, "UPDATE bank.account SET balance = ($2) WHERE account_id=($1) FOR UPDATE", account.UserID(), account.Balance())
 	if err != nil {
 		return err
 	}
