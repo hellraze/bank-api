@@ -2,18 +2,20 @@ package accounts
 
 import (
 	"bank-api/internal/domain"
-	postgres2 "bank-api/internal/pkg/persistence/postgres"
+	"bank-api/internal/pkg/persistence"
 	"context"
 	"github.com/gofrs/uuid"
 )
 
 type DepositAccountUseCase struct {
-	accountRepository domain.AccountRepository
+	accountRepository  domain.AccountRepository
+	transactionManager persistence.TransactionManager
 }
 
-func NewDepositAccountUseCase(accountRepository domain.AccountRepository) *DepositAccountUseCase {
+func NewDepositAccountUseCase(accountRepository domain.AccountRepository, transactionManager persistence.TransactionManager) *DepositAccountUseCase {
 	return &DepositAccountUseCase{
-		accountRepository: accountRepository,
+		accountRepository:  accountRepository,
+		transactionManager: transactionManager,
 	}
 }
 
@@ -23,6 +25,19 @@ type DepositAccountCommand struct {
 }
 
 func (useCase DepositAccountUseCase) DepositAccountHandler(ctx context.Context, command *DepositAccountCommand) error {
-	err := postgres2.PoolTransactionManager.Do(ctx, useCase.accountRepository.UpdateAccountBalance(ctx, command.UserID, command.Deposit))
-	return err
+	return useCase.transactionManager.Do(ctx, func(ctx context.Context) error {
+		account, err := useCase.accountRepository.FindByIDForUpdate(ctx, command.UserID)
+		if err != nil {
+			return err
+		}
+		account.Deposit(command.Deposit)
+		err = useCase.accountRepository.UpdateAccountBalance(ctx, account.UserID(), account.Balance())
+		if err != nil {
+			return err
+		}
+
+		err = useCase.accountRepository.UpdateAccountBalance(ctx, command.UserID, command.Deposit)
+		return err
+	})
+
 }

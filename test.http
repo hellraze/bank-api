@@ -27,12 +27,14 @@ Accept: application/json
 }
 
 ###
-POST localhost:8080/api/accounts
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDI1ODM5NDUsIklEIjoiMDE4YzY5NGEtZjVmYi03YjJlLThiYTctYjMxN2UzZjg0NjU1In0.71yXhAtvJe4cQ3HPxWT2lDCVZnBraHfmThrrgSEHZxY
+GET localhost:8080/api/accounts
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDM1MjExNzQsIklEIjoiMDE4YzY5NGEtZjVmYi03YjJlLThiYTctYjMxN2UzZjg0NjU1In0.oRWGiM9zXU7os2tHwCohZJwVCq9ziildJ0w3kfqf6N8
 Accept: application/json
 
 {
-  "name": "first"
+  "name": "fir",
+  "offset": 0,
+  "limit": 1
 }
 
 ###

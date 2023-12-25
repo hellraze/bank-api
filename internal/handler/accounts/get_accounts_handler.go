@@ -27,7 +27,7 @@ func NewGETUserAccountsHandler(useCase *accounts.ReadUserAccountsUseCase) *GETUs
 	}
 }
 
-type GETUserAccountsResponse struct {
+type GETUserAccountsResponse struct { //добавить сериалайзер
 	Accounts []domain.Account
 }
 

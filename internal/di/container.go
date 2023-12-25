@@ -66,7 +66,7 @@ func (c *Container) POSTDepositAccountHandler() *accounts.POSTDepositAccountHand
 
 func (c *Container) DepositAccount() *accounts2.DepositAccountUseCase {
 	if c.depositAccount == nil {
-		c.depositAccount = accounts2.NewDepositAccountUseCase(c.AccountsRepository())
+		c.depositAccount = accounts2.NewDepositAccountUseCase(c.AccountsRepository()) //добавить транзакшен менеджер
 	}
 	return c.depositAccount
 }

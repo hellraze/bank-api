@@ -61,12 +61,7 @@ func (accountRepository *AccountRepository) FindByIDForUpdate(ctx context.Contex
 }
 
 func (accountRepository *AccountRepository) UpdateAccountBalance(ctx context.Context, id uuid.UUID, deposit int) error {
-	account, err := accountRepository.FindByIDForUpdate(ctx, id)
-	if err != nil {
-		return err
-	}
-	account.Deposit(deposit)
-	_, err = accountRepository.pool.Exec(ctx, "UPDATE bank.account SET balance = ($2) WHERE account_id=($1) FOR UPDATE", account.UserID(), account.Balance())
+	_, err := accountRepository.pool.Exec(ctx, "UPDATE bank.account SET balance = ($2) WHERE account_id=($1)", id, deposit)
 	if err != nil {
 		return err
 	}
@@ -74,7 +69,7 @@ func (accountRepository *AccountRepository) UpdateAccountBalance(ctx context.Con
 }
 
 func (accountRepository *AccountRepository) FindUserAccountsILike(ctx context.Context, name string, offset int, limit int, userID uuid.UUID) ([]domain.Account, error) {
-	query := `SELECT account_uuid, name FROM bank.account WHERE user_id = $1 AND name ILIKE $2 LIMIT $3 OFFSET $4;`
+	query := `SELECT account_id, name, balance, user_id FROM bank.account WHERE user_id = $1 AND name ILIKE $2 LIMIT $3 OFFSET $4;` //squirell
 	rows, err := accountRepository.pool.Query(ctx, query, userID, "%"+name+"%", limit, offset)
 	if err != nil {
 		return nil, err
@@ -83,18 +78,21 @@ func (accountRepository *AccountRepository) FindUserAccountsILike(ctx context.Co
 	var accounts []domain.Account
 
 	for rows.Next() {
-		var (
+		var ( //отдельная структура
 			accountID uuid.UUID
 			name      string
 			balance   int
 			userID    uuid.UUID
 		)
-		rows.Scan(
+		err = rows.Scan(
 			&accountID,
 			&name,
 			&balance,
 			&userID,
 		)
+		if err != nil {
+			return nil, err
+		}
 		account := domain.NewAccount(accountID, name, balance, userID)
 		accounts = append(accounts, *account)
 	}

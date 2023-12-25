@@ -28,7 +28,7 @@ func NewPOSTAccountHandler(useCase *accounts.CreateAccountUseCase, readAccount *
 	}
 }
 
-type POSTAccountResponse struct {
+type POSTAccountResponse struct { // добавить сериалайзер
 	Account *domain.Account
 }
 

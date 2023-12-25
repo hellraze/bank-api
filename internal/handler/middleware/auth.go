@@ -46,10 +46,6 @@ func ValidateAndParseToken(auth string, secretKey string) (*jwt.Token, error) {
 			return nil, fmt.Errorf("Недопустимый метод подписи: %v", token.Header["alg"])
 		}
 
-		if err := validateTokenExpiration(token); err != nil {
-			return nil, err
-		}
-
 		return []byte(secretKey), nil
 	})
 
