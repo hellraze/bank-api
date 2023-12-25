@@ -11,14 +11,12 @@ import (
 )
 
 type AccountRepository struct {
-	pool                   *pgxpool.Pool
-	PoolTransactionManager *postgres.PoolTransactionManager
+	pool *pgxpool.Pool
 }
 
 func NewAccountRepository(pool *pgxpool.Pool, transactionManager *postgres.PoolTransactionManager) *AccountRepository {
 	return &AccountRepository{
-		pool:                   pool,
-		PoolTransactionManager: transactionManager,
+		pool: pool,
 	}
 }
 
@@ -54,7 +52,7 @@ func (accountRepository *AccountRepository) FindByIDForUpdate(ctx context.Contex
 		name    string
 		balance int
 	)
-	err := accountRepository.PoolTransactionManager.Connection.QueryRow(ctx, "SELECT account_id, name, user_id, balance FROM bank.account WHERE user_id = ($1) FOR UPDATE", id).Scan(&id, &name, &userID, &balance)
+	err := accountRepository.pool.QueryRow(ctx, "SELECT account_id, name, user_id, balance FROM bank.account WHERE user_id = ($1) FOR UPDATE", id).Scan(&id, &name, &userID, &balance)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +66,7 @@ func (accountRepository *AccountRepository) UpdateAccountBalance(ctx context.Con
 		return err
 	}
 	account.Deposit(deposit)
-	_, err = accountRepository.PoolTransactionManager.Connection.Exec(ctx, "UPDATE bank.account SET balance = ($2) WHERE account_id=($1) FOR UPDATE", account.UserID(), account.Balance())
+	_, err = accountRepository.pool.Exec(ctx, "UPDATE bank.account SET balance = ($2) WHERE account_id=($1) FOR UPDATE", account.UserID(), account.Balance())
 	if err != nil {
 		return err
 	}

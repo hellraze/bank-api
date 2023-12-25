@@ -9,14 +9,19 @@ import (
 )
 
 type PoolTransactionManager struct {
-	Connection *pgxpool.Pool
+	Connection PoolConnection
+}
+
+func NewPoolTransactionManager(pool *pgxpool.Pool) *PoolTransactionManager {
+	return &PoolTransactionManager{
+		Connection: NewPoolConnection(pool),
+	}
 }
 
 type txKey struct{}
 
 func (p *PoolTransactionManager) Do(ctx context.Context, f func(ctx context.Context) error) error {
-	pool := NewPoolConnection(p.Connection)
-	tx, err := pool.pool.Begin(ctx)
+	tx, err := p.Connection.pool.Begin(ctx)
 	if err != nil {
 		return err
 	}
@@ -37,8 +42,8 @@ type PoolConnection struct {
 	pool *pgxpool.Pool
 }
 
-func NewPoolConnection(pool *pgxpool.Pool) *PoolConnection {
-	return &PoolConnection{pool: pool}
+func NewPoolConnection(pool *pgxpool.Pool) PoolConnection {
+	return PoolConnection{pool: pool}
 }
 func (c *PoolConnection) Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error) {
 	if tx, ok := ctx.Value("transaction").(pgx.Tx); ok {
