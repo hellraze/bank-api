@@ -7,6 +7,10 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+const (
+	DefaultBalanceAmount = 0
+)
+
 type CreateAccountUseCase struct {
 	accountRepository domain.AccountRepository
 }
@@ -23,7 +27,7 @@ type CreateAccountCommand struct {
 }
 
 func (useCase *CreateAccountUseCase) CreateAccountHandler(ctx context.Context, command *CreateAccountCommand) (*domain.Account, error) {
-	account := domain.NewAccount(pkg.GenerateID(), command.Name, command.UserID)
+	account := domain.NewAccount(pkg.GenerateID(), command.Name, DefaultBalanceAmount, command.UserID)
 	err := useCase.accountRepository.Save(ctx, account)
 	return account, err
 }

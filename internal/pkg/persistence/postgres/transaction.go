@@ -12,13 +12,15 @@ type PoolTransactionManager struct {
 	Connection *pgxpool.Pool
 }
 
+type txKey struct{}
+
 func (p *PoolTransactionManager) Do(ctx context.Context, f func(ctx context.Context) error) error {
 	pool := NewPoolConnection(p.Connection)
 	tx, err := pool.pool.Begin(ctx)
 	if err != nil {
 		return err
 	}
-	txContext := context.WithValue(ctx, "transaction", tx)
+	txContext := context.WithValue(ctx, txKey{}, tx)
 	if err = f(txContext); err != nil {
 		tx.Rollback(ctx)
 		return err

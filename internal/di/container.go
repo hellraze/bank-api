@@ -32,9 +32,11 @@ type Container struct {
 	readUsers       *users2.ReadUserUseCase
 	getUsersHandler *tokens.POSTTokenHandler
 
-	createAccount      *accounts2.CreateAccountUseCase
-	accountHandler     *accounts.POSTAccountHandler
-	accountsRepository *postgres.AccountRepository
+	createAccount           *accounts2.CreateAccountUseCase
+	accountHandler          *accounts.POSTAccountHandler
+	accountsRepository      *postgres.AccountRepository
+	readUserAccounts        *accounts2.ReadUserAccountsUseCase
+	readUserAccountsHandler *accounts.GETUserAccountsHandler
 
 	depositAccount            *accounts2.DepositAccountUseCase
 	postDepositAccountHandler *accounts.POSTDepositAccountHandler
@@ -118,6 +120,20 @@ func (c *Container) CreateAccount() *accounts2.CreateAccountUseCase {
 	return c.createAccount
 }
 
+func (c *Container) GETUserAccountsHandler() *accounts.GETUserAccountsHandler {
+	if c.readUserAccountsHandler == nil {
+		c.readUserAccountsHandler = accounts.NewGETUserAccountsHandler(c.ReadUserAccounts())
+	}
+	return c.readUserAccountsHandler
+}
+
+func (c *Container) ReadUserAccounts() *accounts2.ReadUserAccountsUseCase {
+	if c.readUserAccounts == nil {
+		c.readUserAccounts = accounts2.NewReadUserAccountsUseCase(c.AccountsRepository())
+	}
+	return c.readUserAccounts
+}
+
 func (c *Container) ReadAccount() *accounts2.ReadAccountUseCase {
 	if c.readAccount == nil {
 		c.readAccount = accounts2.NewReadAccountUseCase(c.AccountsRepository())
@@ -145,6 +161,7 @@ func (c *Container) HTTPRouter() http.Handler {
 	securedRouter := router.PathPrefix("/api").Subrouter()
 	securedRouter.Use(middleware.AuthMiddleware)
 	securedRouter.Handle("/accounts", c.POSTAccountHandler()).Methods(http.MethodPost)
+	securedRouter.Handle("/accounts", c.GETUserAccountsHandler()).Methods(http.MethodGet)
 	securedRouter.Handle("/deposit", c.POSTDepositAccountHandler()).Methods(http.MethodPost)
 	c.router = router
 	return c.router
